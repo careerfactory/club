@@ -92,7 +92,7 @@ class CloudPaymentsService:
             "Description": product_data["description"],
             "RequireConfirmation": False,
             "InvoiceId": order_id,
-            "SuccessRedirectUrl": "https://club.carreerfactory.ru/intro/",
+            "SuccessRedirectUrl": "https://club.careerfactory.ru/intro/",
             "Email": user.email,
             "JsonData": {
                 "CloudPayments": {
@@ -110,7 +110,7 @@ class CloudPaymentsService:
                             },
                         ],
                         "email": user.email,
-                        "calculationPlace": "club.carreerfactory.ru",
+                        "calculationPlace": "club.careerfactory.ru",
                         "amounts":
                         {
                             "electronic": product_data["amount"],
