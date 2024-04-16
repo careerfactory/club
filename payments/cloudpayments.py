@@ -19,143 +19,47 @@ from users.models.user import User
 log = logging.getLogger()
 
 CLOUDPAYMENTS_PRODUCTS = {
-    "club1month_elementcharge": {
-        "code": "club1month_elementcharge",
-        "description": "1 месяц членства в Клубе (тариф: заряд протона)",
-        "amount": 160.22,
+    "club1_month": {
+        "code": "club1month",
+        "description": "1 месяц членства в Клубе",
+        "amount": 999,
         "recurrent": False,
         "activator": club_subscription_activator,
         "data": {
             "timedelta": timedelta(days=31),
         },
     },
-    "club1month_light": {
-        "code": "club1month_light",
-        "description": "1 месяц членства в Клубе (тариф: скорость света)",
-        "amount": 299.79,
-        "recurrent": False,
-        "activator": club_subscription_activator,
-        "data": {
-            "timedelta": timedelta(days=31),
-        },
-    },
-    "club1month_bohrrad": {
-        "code": "club1month_bohrrad",
-        "description": "1 месяц членства в Клубе (тариф: боровский радиус)",
-        "amount": 529.18,
-        "recurrent": False,
-        "activator": club_subscription_activator,
-        "data": {
-            "timedelta": timedelta(days=31),
-        },
-    },
-    "club1month_planck": {
-        "code": "club1month_planck",
-        "description": "1 месяц членства в Клубе (тариф: постоянная Планка)",
-        "amount": 662.6,
-        "recurrent": False,
-        "activator": club_subscription_activator,
-        "data": {
-            "timedelta": timedelta(days=31),
-        },
-    },
-    "club1month_electronmass": {
-        "code": "club1month_electronmass",
-        "description": "1 месяц членства в Клубе (тариф: масса электрона)",
-        "amount": 910.94,
-        "recurrent": False,
-        "activator": club_subscription_activator,
-        "data": {
-            "timedelta": timedelta(days=31),
-        },
-    },
-    "club1month_elementcharge_recurrent": {
-        "code": "club1month_elementcharge",
-        "description": "1 месяц членства в Клубе (тариф: заряд протона)",
-        "amount": 160.22,
-        "recurrent": False,
-        "activator": club_subscription_activator,
-        "data": {
-            "timedelta": timedelta(days=31),
-        },
-        "regular": "monthly",
-    },
-    "club1month_light_recurrent": {
-        "code": "club1month_light",
-        "description": "1 месяц членства в Клубе (тариф: скорость света)",
-        "amount": 299.79,
-        "recurrent": False,
-        "activator": club_subscription_activator,
-        "data": {
-            "timedelta": timedelta(days=31),
-        },
-        "regular": "monthly",
-    },
-    "club1month_bohrrad_recurrent": {
-        "code": "club1month_bohrrad",
-        "description": "1 месяц членства в Клубе (тариф: боровский радиус)",
-        "amount": 529.18,
-        "recurrent": False,
-        "activator": club_subscription_activator,
-        "data": {
-            "timedelta": timedelta(days=31),
-        },
-        "regular": "monthly",
-    },
-    "club1month_planck_recurrent": {
-        "code": "club1month_planck",
-        "description": "1 месяц членства в Клубе (тариф: постоянная Планка)",
-        "amount": 662.6,
-        "recurrent": False,
-        "activator": club_subscription_activator,
-        "data": {
-            "timedelta": timedelta(days=31),
-        },
-        "regular": "monthly",
-    },
-    "club1month_electronmass_recurrent": {
-        "code": "club1month_electronmass",
-        "description": "1 месяц членства в Клубе (тариф: масса электрона)",
-        "amount": 910.94,
-        "recurrent": False,
-        "activator": club_subscription_activator,
-        "data": {
-            "timedelta": timedelta(days=31),
-        },
-        "regular": "monthly",
-    },
-    "club1_recurrent": {
-        "code": "club1",
-        "description": "Месяц членства в Клубе",
-        "amount": 1000,
-        "recurrent": False,
-        "activator": club_subscription_activator,
-        "data": {
-            "timedelta": timedelta(days=31),
-        },
-        "regular": "monthly",
-    },
-    "club3_recurrent": {
-        "code": "club3",
-        "description": "3 месяца членства в Клубе",
-        "amount": 2000,
-        "recurrent": False,
-        "activator": club_subscription_activator,
-        "data": {
-            "timedelta": timedelta(days=31 * 3),
-        },
-        "regular": "monthly",
-    },
-    "club12_recurrent": {
-        "code": "club12",
-        "description": "Год членства в Клубе",
-        "amount": 6000,
+    "club1_year": {
+        "code": "club1year",
+        "description": "1 год членства в Клубе",
+        "amount": 5999,
         "recurrent": False,
         "activator": club_subscription_activator,
         "data": {
             "timedelta": timedelta(days=365),
         },
-        "regular": "yearly",
+    },
+    "club1_month_recurrent": {
+        "code": "club1month_elementcharge",
+        "description": "1 месяц членства в Клубе",
+        "amount": 999,
+        "recurrent": False,
+        "activator": club_subscription_activator,
+        "data": {
+            "timedelta": timedelta(days=31),
+        },
+        "regular": "monthly",
+    },
+    "club1_year_recurrent": {
+        "code": "club1month_light",
+        "description": "1 год членства в Клубе",
+        "amount": 5999,
+        "recurrent": False,
+        "activator": club_subscription_activator,
+        "data": {
+            "timedelta": timedelta(days=365),
+        },
+        "regular": "monthly",
     },
 }
 
@@ -188,7 +92,7 @@ class CloudPaymentsService:
             "Description": product_data["description"],
             "RequireConfirmation": False,
             "InvoiceId": order_id,
-            "SuccessRedirectUrl": "https://club.mnogosdelal.ru/intro/",
+            "SuccessRedirectUrl": "https://club.carreerfactory.ru/intro/",
             "Email": user.email,
             "JsonData": {
                 "CloudPayments": {
@@ -206,7 +110,7 @@ class CloudPaymentsService:
                             },
                         ],
                         "email": user.email,
-                        "calculationPlace": "club.mnogosdelal.ru",
+                        "calculationPlace": "club.carreerfactory.ru",
                         "amounts":
                         {
                             "electronic": product_data["amount"],
@@ -218,9 +122,6 @@ class CloudPaymentsService:
                 }
             }
         }
-
-        if "regular" in product_data:
-            pass
 
         response = requests.post(
             "https://api.cloudpayments.ru/orders/create",

@@ -33,7 +33,7 @@ def cloudpayments_webhook(request):
         product = CLOUDPAYMENTS_PRODUCTS[payment.product_code]
         product["activator"](product, payment, payment.user)
 
-        if payment.user.moderation_status != User.MODERATION_STATUS_APPROVED:
-            send_payed_email(payment.user)
+        # if payment.user.moderation_status != User.MODERATION_STATUS_APPROVED:
+        #     send_payed_email(payment.user)
 
     return HttpResponse(json.dumps(answer))
