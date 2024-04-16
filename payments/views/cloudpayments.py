@@ -109,7 +109,7 @@ def pay(request):
         data=payment_data,
     )
 
-    return render(request, "payments/pay.html", {
+    return render(request, "payments/cloudpayments_pay.html", {
         "invoice": invoice,
         "product": product,
         "payment": payment,
@@ -127,6 +127,8 @@ def cloudpayments_webhook(request):
 
     action = request.GET["action"]
     payload = request.POST
+
+    log.info("Webhook action %s, payload %s", action, payload)
 
     status, answer = pay_service.accept_payment(action, payload)
 
