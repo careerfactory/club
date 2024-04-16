@@ -13,4 +13,4 @@ PRIVATE_FEED = True
 PATREON_AUTH_ENABLED = True
 
 # Payments are not required
-FREE_MEMBERSHIP = True
+FREE_MEMBERSHIP = False
