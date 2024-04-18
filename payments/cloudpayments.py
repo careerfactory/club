@@ -20,7 +20,7 @@ log = logging.getLogger()
 
 CLOUDPAYMENTS_PRODUCTS = {
     "club1_month": {
-        "code": "club1month",
+        "code": "club1_month",
         "description": "1 месяц членства в Клубе",
         "amount": 999,
         "recurrent": False,
@@ -30,7 +30,7 @@ CLOUDPAYMENTS_PRODUCTS = {
         },
     },
     "club1_year": {
-        "code": "club1year",
+        "code": "club1_year",
         "description": "1 год членства в Клубе",
         "amount": 5999,
         "recurrent": False,
