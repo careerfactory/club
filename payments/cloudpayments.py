@@ -40,7 +40,7 @@ CLOUDPAYMENTS_PRODUCTS = {
         },
     },
     "club1_month_recurrent": {
-        "code": "club1month_elementcharge",
+        "code": "club1_month_recurrent",
         "description": "1 месяц членства в Клубе",
         "amount": 999,
         "recurrent": False,
@@ -51,7 +51,7 @@ CLOUDPAYMENTS_PRODUCTS = {
         "regular": "monthly",
     },
     "club1_year_recurrent": {
-        "code": "club1month_light",
+        "code": "club1_year_recurrent",
         "description": "1 год членства в Клубе",
         "amount": 5999,
         "recurrent": False,
@@ -59,7 +59,7 @@ CLOUDPAYMENTS_PRODUCTS = {
         "data": {
             "timedelta": timedelta(days=365),
         },
-        "regular": "monthly",
+        "regular": "yearly",
     },
 }
 
