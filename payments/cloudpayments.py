@@ -16,7 +16,7 @@ from requests.auth import HTTPBasicAuth
 from payments.products import club_subscription_activator
 from users.models.user import User
 
-log = logging.getLogger()
+log = logging.getLogger(__name__)
 
 CLOUDPAYMENTS_PRODUCTS = {
     "club1_month": {

@@ -7,7 +7,7 @@ from payments.cloudpayments import CLOUDPAYMENTS_PRODUCTS, CloudPaymentsService,
 from payments.models import Payment
 from users.models.user import User
 
-log = logging.getLogger()
+log = logging.getLogger(__name__)
 
 
 def done(request):
