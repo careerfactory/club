@@ -8,7 +8,6 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0028_auto_20240428_1319'),
         ('payments', '0005_auto_20200721_1043'),
     ]
 
