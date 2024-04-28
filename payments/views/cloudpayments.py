@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import datetime
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from payments.cloudpayments import CLOUDPAYMENTS_PRODUCTS, CloudPaymentsService, TransactionStatus
 from payments.models import Payment
@@ -122,8 +122,8 @@ def cloudpayments_webhook(request):
     is_verified = pay_service.verify_webhook(request)
 
     if not is_verified:
-        # TODO: на время начальной работы игнорируем ошибки верификации
         log.error("Request is not verified %r", request.POST)
+        return HttpResponseBadRequest("Request is not verified")
 
     action = request.GET["action"]
     payload = request.POST
