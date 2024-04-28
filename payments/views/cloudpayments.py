@@ -4,7 +4,7 @@ from datetime import datetime
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from payments.cloudpayments import CLOUDPAYMENTS_PRODUCTS, CloudPaymentsService, TransactionStatus
-from payments.models import Payment
+from payments.models import Payment, Subscription
 from users.models.user import User
 
 log = logging.getLogger(__name__)
@@ -132,7 +132,11 @@ def cloudpayments_webhook(request):
 
     status, answer = pay_service.accept_payment(action, payload)
 
-    if status == TransactionStatus.APPROVED:
+    if status != TransactionStatus.APPROVED:
+        return HttpResponse(json.dumps(answer))
+
+    if payload.get("InvoiceId"):
+        log.info("Payment %s is finished", payload["InvoiceId"])
         payment = Payment.finish(
             reference=payload["InvoiceId"],
             status=Payment.STATUS_SUCCESS,
@@ -142,7 +146,30 @@ def cloudpayments_webhook(request):
         product = CLOUDPAYMENTS_PRODUCTS[payment.product_code]
         product["activator"](product, payment, payment.user)
 
-        # if payment.user.moderation_status != User.MODERATION_STATUS_APPROVED:
-        #     send_payed_email(payment.user)
+        if payload.get("SubscriptionId"):
+            Subscription.objects.create(
+                user=payment.user,
+                subscription_id=payload["SubscriptionId"],
+                product_code=payment.product_code,
+                amount=payment.amount,
+                data=json.dumps(payload),
+                reference=payload["InvoiceId"],
+            )
+
+    else:
+        log.info("Subscription payment %s is finished", payload["SubscriptionId"])
+        subscription = Subscription.objects.get(subscription_id=payload["SubscriptionId"])
+
+        product = CLOUDPAYMENTS_PRODUCTS[subscription.product_code]
+        payment = Payment.objects.create(
+            reference=subscription.reference,
+            user=subscription.user,
+            product_code=subscription.product_code,
+            amount=product.get("amount") or 0.0,
+            status=Payment.STATUS_SUCCESS,
+            data=json.dumps(payload),
+        )
+
+        product["activator"](product, payment, payment.user)
 
     return HttpResponse(json.dumps(answer))
