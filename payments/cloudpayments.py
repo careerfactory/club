@@ -92,6 +92,7 @@ class CloudPaymentsService:
             "Description": product_data["description"],
             "RequireConfirmation": False,
             "InvoiceId": order_id,
+            "SubscriptionBehavior": "CreateMonthly" if product_data.get("regular") == "monthly" else "",
             "SuccessRedirectUrl": "https://club.careerfactory.ru/auth/login/",
             "Email": user.email,
             "JsonData": {
