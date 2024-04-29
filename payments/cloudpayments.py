@@ -22,28 +22,28 @@ CLOUDPAYMENTS_PRODUCTS = {
     "club1_month": {
         "code": "club1_month",
         "description": "1 месяц членства в Клубе",
-        "amount": 999,
+        "amount": 599,
         "recurrent": False,
         "activator": club_subscription_activator,
         "data": {
             "timedelta": timedelta(days=31),
         },
     },
-    "club1_year": {
-        "code": "club1_year",
-        "description": "1 год членства в Клубе",
-        "amount": 5999,
-        "recurrent": False,
-        "activator": club_subscription_activator,
-        "data": {
-            "timedelta": timedelta(days=365),
-        },
-    },
+    # "club1_year": {
+    #     "code": "club1_year",
+    #     "description": "1 год членства в Клубе",
+    #     "amount": 5999,
+    #     "recurrent": False,
+    #     "activator": club_subscription_activator,
+    #     "data": {
+    #         "timedelta": timedelta(days=365),
+    #     },
+    # },
     "club1_month_recurrent": {
         "code": "club1_month_recurrent",
         "description": "1 месяц членства в Клубе",
-        "amount": 999,
-        "recurrent": False,
+        "amount": 599,
+        "recurrent": True,
         "activator": club_subscription_activator,
         "data": {
             "timedelta": timedelta(days=31),
