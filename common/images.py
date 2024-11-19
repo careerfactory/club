@@ -22,6 +22,20 @@ def upload_image_multipart(
         except Exception as ex:
             log.warning(f"Bad image data: {ex}")
             return None
+        exif = image._getexif()
+        ORIENTATION = 274
+        if exif is not None and (orientation := exif.get(ORIENTATION, None)) is not None:
+            method = {
+                2: Image.FLIP_LEFT_RIGHT,
+                3: Image.ROTATE_180,
+                4: Image.FLIP_TOP_BOTTOM,
+                5: Image.TRANSPOSE,
+                6: Image.ROTATE_270,
+                7: Image.TRANSVERSE,
+                8: Image.ROTATE_90,
+            }
+            if orientation in method:
+                image = image.transpose(method[orientation])
 
         image.thumbnail(resize)
         saved_image = io.BytesIO()
