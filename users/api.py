@@ -47,19 +47,23 @@ def api_profile_status(request):
     email_user = User.objects.filter(email=email)
     email_user = email_user[0] if email_user and email is not None else None
 
+    user_id = None
     active = None
     club_telegram_id = None
     club_email = None
     if telegram_user is not None:
+        user_id = telegram_user.id
         active = telegram_user.is_active_member
         club_telegram_id = telegram_user.telegram_id
         club_email = telegram_user.email
     if email_user is not None:
+        user_id = user_id or email_user.id
         active = active or email_user.is_active_member
         club_telegram_id = club_telegram_id or email_user.telegram_id
         club_email = club_email or email_user.email
 
     body = {
+        "id": user_id,
         "is_active_member": active,
         "telegram_id": club_telegram_id,
         "email": club_email,
