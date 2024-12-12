@@ -1,11 +1,18 @@
 import logging
+import os
+import sys
 
+import django
 import requests
+
+if __name__ == "__main__":
+    sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "club.settings")
+    django.setup()
 
 from django.conf import settings
 
 log = logging.getLogger(__name__)
-
 
 
 def save_user_to_integration(user):
@@ -22,3 +29,15 @@ def save_user_to_integration(user):
         log.info("User slug=%s update sent to integration", user.slug)
     except Exception as e:
         log.warning("Saving to integration failed", exc_info=e)
+
+
+def import_all_users():
+    from .models.user import User
+
+    users = User.objects.all()
+    for user in users:
+        save_user_to_integration(user)
+
+
+if __name__ == "__main__":
+    import_all_users()
