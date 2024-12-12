@@ -86,7 +86,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data:rw
     ports:
-      - "54333:5432"
+      - "127.0.0.1:54333:5432"
 
   redis:
     image: redis:alpine
