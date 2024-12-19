@@ -3,7 +3,6 @@ from django.contrib import admin
 from posts.models.linked import LinkedPost
 from posts.models.post import Post
 
-
 class PostsAdmin(admin.ModelAdmin):
     list_display = (
         "slug",
