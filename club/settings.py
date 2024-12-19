@@ -341,3 +341,6 @@ if SENTRY_DSN and not DEBUG:
 if DEBUG:
     INSTALLED_APPS += ["debug_toolbar"]
     MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
+
+INTEGRATION_USER_URL = "https://bot.careerpath.tech/update_club_user_callback"
+INTEGRATION_TOKEN = os.getenv("INTEGRATION_TOKEN")

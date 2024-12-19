@@ -7,6 +7,7 @@ from django.db import models
 from django.db.models import F
 from django.urls import reverse
 
+from users.integration import save_user_to_integration
 from users.models.geo import Geo
 from common.models import ModelDiffMixin
 from utils.slug import generate_unique_slug
@@ -128,6 +129,7 @@ class User(models.Model, ModelDiffMixin):
             self.secret_hash = self.slug[:6] + random_string(length=18)
 
         self.updated_at = datetime.utcnow()
+        save_user_to_integration(self)
         return super().save(*args, **kwargs)
 
     def to_dict(self):
