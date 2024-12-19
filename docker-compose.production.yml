@@ -5,18 +5,18 @@ services:
     command: make docker-run-production
     container_name: club_app
     environment:
-      MODE: production
-      PYTHONUNBUFFERED: 1
-      DEBUG: false
-      APP_HOST: https://club.careerfactory.ru
-      POSTGRES_USER: ${secret_POSTGRES_USER}
-      POSTGRES_PASSWORD: ${secret_POSTGRES_PASSWORD}
-      POSTGRES_DB: ${secret_POSTGRES_DB}
-      INTEGRATION_TOKEN: ${secret_INTEGRATION_TOKEN}
-      POSTGRES_HOST: postgres
-      REDIS_DB: 0
-      REDIS_HOST: redis
-      DEFAULT_FROM_EMAIL: ""
+      - MODE=production
+      - PYTHONUNBUFFERED=1
+      - DEBUG=false
+      - APP_HOST=https://club.careerfactory.ru
+      - POSTGRES_USER=${secret_POSTGRES_USER:?Variable secret_POSTGRES_USER is missing!}
+      - POSTGRES_PASSWORD=${secret_POSTGRES_PASSWORD:?Variable secret_POSTGRES_PASSWORD is missing!}
+      - POSTGRES_DB=${secret_POSTGRES_DB:?Variable secret_POSTGRES_DB is missing!}
+      - INTEGRATION_TOKEN=${secret_INTEGRATION_TOKEN}
+      - POSTGRES_HOST=postgres
+      - REDIS_DB=0
+      - REDIS_HOST=redis
+      - DEFAULT_FROM_EMAIL
     env_file:
       - .env
     restart: always
