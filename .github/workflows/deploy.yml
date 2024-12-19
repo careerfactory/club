@@ -61,6 +61,10 @@ jobs:
           secret_WEBHOOK_SECRETS: ${{ secrets.WEBHOOK_SECRETS }}
           secret_CLOUDPAYMENTS_API_ID: ${{ secrets.CLOUDPAYMENTS_API_ID }}
           secret_CLOUDPAYMENTS_API_PASSWORD: ${{ secrets.CLOUDPAYMENTS_API_PASSWORD }}
+          secret_POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          secret_POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          secret_POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          secret_INTEGRATION_TOKEN: ${{ secrets.INTEGRATION_TOKEN }}
       - run: echo "GITHUB_SHA=$GITHUB_SHA" >> .env
       - run: echo "${{ secrets.PRODUCTION_SSH_KEY }}" > ${{ env.SSH_KEY_PATH }} && chmod 600 ${{ env.SSH_KEY_PATH }}
       - run: scp -o StrictHostKeyChecking=no -i ${{ env.SSH_KEY_PATH }} .env ${{ secrets.PRODUCTION_SSH_USERNAME }}@${{ secrets.PRODUCTION_SSH_HOST }}:/var/www/club/.env

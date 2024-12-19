@@ -9,9 +9,10 @@ services:
       - PYTHONUNBUFFERED=1
       - DEBUG=false
       - APP_HOST=https://club.careerfactory.ru
-      - POSTGRES_DB=vas3k_club
-      - POSTGRES_USER=vas3k
-      - POSTGRES_PASSWORD=yHXmSlY2lDbb8TM
+      - POSTGRES_USER=${secret_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${secret_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${secret_POSTGRES_DB}
+      - INTEGRATION_TOKEN=${secret_INTEGRATION_TOKEN}
       - POSTGRES_HOST=postgres
       - REDIS_DB=0
       - REDIS_HOST=redis
@@ -80,13 +81,13 @@ services:
     container_name: club_postgres
     restart: always
     environment:
-      POSTGRES_USER: vas3k
-      POSTGRES_PASSWORD: yHXmSlY2lDbb8TM
-      POSTGRES_DB: vas3k_club
+      POSTGRES_USER: ${secret_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${secret_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${secret_POSTGRES_DB}
     volumes:
       - pgdata:/var/lib/postgresql/data:rw
     ports:
-      - "127.0.0.1:54333:5432"
+      - "54333:5432"
 
   redis:
     image: redis:alpine
