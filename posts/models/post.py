@@ -142,12 +142,6 @@ class Post(models.Model, ModelDiffMixin):
         return f"Post: {self.title}"
 
     def to_dict(self, including_private=False):
-        log.info(self.author is not None)
-        print(self.author is not None)
-        log.info(self.author.id)
-        print(self.author.id)
-        log.info(self.author.get_absolute_url())
-        print(self.author.get_absolute_url())
         return {
             "id": self.id,
             "url": f"{settings.APP_HOST}{self.get_absolute_url()}",

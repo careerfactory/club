@@ -22,7 +22,9 @@ def render_post(request, post, context=None):
 
     # select votes and comments
     if request.me:
-        comments = Comment.objects_for_user(request.me).filter(post=post).all()  # do not add more joins here! it slows down a lot!
+        comments = Comment.objects_for_user(request.me) \
+            .filter(post=post, author__isnull=False) \
+            .all()  # do not add more joins here! it slows down a lot!
         is_bookmark = PostBookmark.objects.filter(post=post, user=request.me).exists()
         is_voted = PostVote.objects.filter(post=post, user=request.me).exists()
         upvoted_at = int(PostVote.objects.filter(post=post, user=request.me).first().created_at.timestamp() * 1000) if is_voted else None
@@ -32,7 +34,9 @@ def render_post(request, post, context=None):
         collectible_tag = Tag.objects.filter(code=post.collectible_tag_code).first() if post.collectible_tag_code else None
         is_collectible_tag_collected = UserTag.objects.filter(tag=collectible_tag, user=request.me).exists() if collectible_tag else False
     else:
-        comments = Comment.visible_objects(show_deleted=True).filter(post=post).all()
+        comments = Comment.visible_objects(show_deleted=True) \
+            .filter(post=post, author__isnull=False) \
+            .all()
         is_voted = False
         is_bookmark = False
         upvoted_at = None
