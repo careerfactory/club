@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from uuid import uuid4
+import logging
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
@@ -15,6 +16,9 @@ from common.models import ModelDiffMixin
 from rooms.models import Room
 from users.models.user import User
 from utils.slug import generate_unique_slug
+
+
+log = logging.getLogger(__name__)
 
 
 class Post(models.Model, ModelDiffMixin):
@@ -138,6 +142,12 @@ class Post(models.Model, ModelDiffMixin):
         return f"Post: {self.title}"
 
     def to_dict(self, including_private=False):
+        log.info(self.author is not None)
+        print(self.author is not None)
+        log.info(self.author.id)
+        print(self.author.id)
+        log.info(self.author.get_absolute_url())
+        print(self.author.get_absolute_url())
         return {
             "id": self.id,
             "url": f"{settings.APP_HOST}{self.get_absolute_url()}",
