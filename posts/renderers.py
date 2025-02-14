@@ -16,6 +16,7 @@ POSSIBLE_COMMENT_ORDERS = {"created_at", "-created_at", "-upvotes"}
 
 
 def render_post(request, post, context=None):
+
     # render "raw" newsletters
     if post.type == Post.TYPE_WEEKLY_DIGEST:
         return HttpResponse(post.html)
