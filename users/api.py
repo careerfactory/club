@@ -1,8 +1,12 @@
+import json
+from datetime import datetime, timedelta, timezone
+
 from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404
 
 from authn.decorators.api import api
 from club.exceptions import ApiAccessDenied
+from landing.views import add_days_to_user, create_user_member, post_user_invite
 from users.models.user import User
 
 
@@ -67,5 +71,58 @@ def api_profile_status(request):
         "is_active_member": active,
         "telegram_id": club_telegram_id,
         "email": club_email,
+    }
+    return JsonResponse(body)
+
+
+@api(require_auth=True)
+def invite_user(request):
+    if not request.me.is_god:
+        raise ApiAccessDenied(title="God only")
+
+    if request.method != "POST":
+        bodies = [
+            {
+                "days": 10,
+                "email": "user@example.org",
+            },
+            {
+                "days": 10,
+                "telegram_id": "143106937",
+            }
+        ]
+        return JsonResponse({"example_bodies": bodies})
+    body = json.loads(request.body)
+    days = body.get("days", None)
+    if days is None:
+        return HttpResponseBadRequest("Specify days")
+    try:
+        days = int(days)
+        if days < 0:
+            return HttpResponseBadRequest("days must be greater than 0")
+    except ValueError:
+        return HttpResponseBadRequest("days must be int")
+    email = body.get("email", None)
+    telegram_id = body.get("telegram_id", None)
+    if email is None and telegram_id is None:
+        return HttpResponseBadRequest("Specify email or telegram_id")
+
+    user = None
+    if telegram_id is not None:
+        user = User.objects.filter(telegram_id=telegram_id).first()
+    if email is not None:
+        user = User.objects.filter(email=email).first()
+
+    if user is None:
+        user = create_user_member(email, telegram_id, days)
+        if telegram_id is not None:
+            user.telegram_id = telegram_id
+            user.save()
+    else:
+        add_days_to_user(user, days)
+    post_user_invite(request, user)
+    body = {
+        "user_id": user.id,
+        "membership_expires_at": user.membership_expires_at
     }
     return JsonResponse(body)
