@@ -30,7 +30,7 @@ def send_welcome_drink(user: User):
     welcome_drink_template = loader.get_template("emails/welcome.html")
     send_transactional_email(
         recipient=user.email,
-        subject=f"Велком дринк 🍸",
+        subject=f"Как получить пользу в Клубе Карьерного Цеха",
         html=welcome_drink_template.render({"user": user}),
         tags=["welcome"]
     )
