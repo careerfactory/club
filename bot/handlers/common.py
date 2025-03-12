@@ -47,10 +47,10 @@ def get_club_user(update: Update):
     user = User.objects.filter(telegram_id=update.effective_user.id).first()
     if not user:
         if update.callback_query:
-            update.callback_query.answer(text=f"☝️ Привяжи бота к профилю, братишка")
+            update.callback_query.answer(text=f"☝️ Привяжи бота к профилю Клуба")
         else:
             update.message.reply_text(
-                f"😐 Привяжи <a href=\"https://club.careerfactory.ru/user/me/edit/bot/\">бота</a> к профилю, братишка",
+                f"😐 Привяжи <a href=\"https://club.careerfactory.ru/user/me/edit/bot/\">бота</a> к профилю Клуба.",
                 parse_mode=ParseMode.HTML
             )
         return None
