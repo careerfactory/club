@@ -102,10 +102,18 @@ def add_days_to_user(user: User, days: int) -> User:
     return user
 
 
+def expire_membership(user: User) -> User:
+    now = datetime.utcnow()
+    user.membership_expires_at = now
+    user.updated_at = now
+    user.save()
+    return user
+
+
 def create_user_member(email, telegram_id, days: int) -> User:
     now = datetime.utcnow()
     if email is None:
-        full_name = "telegram_" + telegram_id
+        full_name = "telegram_" + str(telegram_id)
     else:
         full_name = email[:email.find("@")]
     user, _ = User.objects.get_or_create(
