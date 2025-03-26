@@ -231,7 +231,7 @@ ACHIEVEMENTS = [
     }),
     ("mydudes", {
         "name": "Золотая лягуха",
-        "description": "Всем среда, мои чуваки!",
+        "description": "Всем здравствуйте!",
         "image": "https://i.vas3k.ru/3d916eda28fb4a9625e32788db339b429f14a7614fbf510bb35d23ac8335c372.png",
         "style": "background-color: #FFCE30;",
     }),
