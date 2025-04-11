@@ -8,7 +8,7 @@ services:
       - MODE=production
       - PYTHONUNBUFFERED=1
       - DEBUG=false
-      - APP_HOST=https://club.careerfactory.ru
+      - APP_HOST=https://hrclub.careerfactory.ru
       - POSTGRES_USER=${POSTGRES_USER:?Variable POSTGRES_USER is missing!}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Variable POSTGRES_PASSWORD is missing!}
       - POSTGRES_DB=${POSTGRES_DB:?Variable POSTGRES_DB is missing!}

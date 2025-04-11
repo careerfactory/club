@@ -15,12 +15,12 @@ SECRET_KEY = os.getenv("SECRET_KEY") or "wow so secret"
 DEBUG = (os.getenv("DEBUG") != "false")  # SECURITY WARNING: don't run with debug turned on in production!
 TESTS_RUN = True if os.getenv("TESTS_RUN") else False
 
-ALLOWED_HOSTS = ["*", "127.0.0.1", "localhost", "0.0.0.0", "club.careerfactory.ru"]
+ALLOWED_HOSTS = ["*", "127.0.0.1", "localhost", "0.0.0.0", "hrclub.careerfactory.ru"]
 INTERNAL_IPS = ["127.0.0.1"]
 
 ADMINS = [
-    ("admin", "club@club.careerfactory.ru"),
-    ("me", "me@club.careerfactory.ru"),
+    ("admin", "hrclub@hrclub.careerfactory.ru"),
+    ("me", "me@hrclub.careerfactory.ru"),
 ]
 
 INSTALLED_APPS = [
@@ -183,7 +183,7 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "Карьерный цех 
 
 # App
 
-APP_HOST = os.environ.get("APP_HOST") or "https://club.careerfactory.ru"
+APP_HOST = os.environ.get("APP_HOST") or "https://hrclub.careerfactory.ru"
 APP_NAME = "Карьерный цех"
 APP_DESCRIPTION = "Всё интересное происходит за закрытыми дверями"
 LAUNCH_DATE = datetime(2024, 6, 20)
@@ -247,22 +247,22 @@ OPENID_CODE_EXPIRE_SECONDS = 300  # 5 minutes
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-MEDIA_UPLOAD_URL = "https://i.club.careerfactory.ru/upload/multipart/"
+MEDIA_UPLOAD_URL = "https://i.hrclub.careerfactory.ru/upload/multipart/"
 MEDIA_UPLOAD_CODE = os.getenv("MEDIA_UPLOAD_CODE")
 VIDEO_EXTENSIONS = {"mp4", "mov", "webm"}
 IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "gif"}
 
-OG_IMAGE_GENERATOR_URL = "https://og.club.careerfactory.ru/preview"
-OG_IMAGE_DEFAULT = "https://club.careerfactory.ru/static/images/share.png"
-OG_MACHINE_AUTHOR_LOGO = "https://club.careerfactory.ru/static/images/the_machine_logo.png"
+OG_IMAGE_GENERATOR_URL = "https://og.hrclub.careerfactory.ru/preview"
+OG_IMAGE_DEFAULT = "https://hrclub.careerfactory.ru/static/images/share.png"
+OG_MACHINE_AUTHOR_LOGO = "https://hrclub.careerfactory.ru/static/images/the_machine_logo.png"
 OG_IMAGE_GENERATOR_DEFAULTS = {
-    "logo": "https://club.careerfactory.ru/static/images/logo/logo-white-text.png",
+    "logo": "https://hrclub.careerfactory.ru/static/images/logo/logo-white-text.png",
     "op": 0.6,
     "bg": "#FFFFFF",
 }
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-TELEGRAM_BOT_URL = "https://t.me/careerfactory_club_bot"
+TELEGRAM_BOT_URL = os.getenv("TELEGRAM_BOT_URL") or "https://t.me/hrclub_careerfactory_bot"
 TELEGRAM_ADMIN_CHAT_ID = os.getenv("TELEGRAM_ADMIN_CHAT_ID")
 TELEGRAM_CLUB_CHANNEL_URL = "https://t.me/careerfactory_club_news"
 TELEGRAM_CLUB_ALL_NEWS_CHANNEL_URL = "https://t.me/careerfactory_club_news_all"
@@ -271,7 +271,7 @@ TELEGRAM_CLUB_CHAT_URL = os.getenv("TELEGRAM_CLUB_CHAT_URL")
 TELEGRAM_CLUB_CHAT_ID = os.getenv("TELEGRAM_CLUB_CHAT_ID")
 TELEGRAM_ONLINE_CHANNEL_URL = os.getenv("TELEGRAM_ONLINE_CHANNEL_URL")
 TELEGRAM_ONLINE_CHANNEL_ID = os.getenv("TELEGRAM_ONLINE_CHANNEL_ID")
-TELEGRAM_BOT_WEBHOOK_URL = "https://club.careerfactory.ru/telegram/webhook/"
+TELEGRAM_BOT_WEBHOOK_URL = "https://hrclub.careerfactory.ru/telegram/webhook/"
 TELEGRAM_BOT_WEBHOOK_HOST = "0.0.0.0"
 TELEGRAM_BOT_WEBHOOK_PORT = 8816
 
@@ -286,7 +286,7 @@ CLOUDPAYMENTS_API_PASSWORD = os.getenv("CLOUDPAYMENTS_API_PASSWORD") or ""
 
 WEBHOOK_SECRETS = set(os.getenv("WEBHOOK_SECRETS", "").split(","))
 
-DEFAULT_AVATAR = "https://i.club.careerfactory.ru/v.png"
+DEFAULT_AVATAR = "https://i.hrclub.careerfactory.ru/v.png"
 COMMENT_EDITABLE_TIMEDELTA = timedelta(hours=24)
 COMMENT_DELETABLE_TIMEDELTA = timedelta(days=10 * 365)
 COMMENT_DELETABLE_BY_POST_AUTHOR_TIMEDELTA = timedelta(days=14)
@@ -308,11 +308,11 @@ CLEARED_POST_TEXT = "```\n" \
 MODERATOR_USERNAME = "moderator"
 DELETED_USERNAME = "deleted"
 
-VALUES_GUIDE_URL = "https://club.careerfactory.ru/post/values/"
-POSTING_GUIDE_URL = "https://club.careerfactory.ru/post/10447/"
-CHATS_GUIDE_URL = "https://club.careerfactory.ru/post/9542/"
-PEOPLE_GUIDE_URL = "https://club.careerfactory.ru/post/2584/"
-PARLIAMENT_GUIDE_URL = "https://club.careerfactory.ru/post/12870/"
+VALUES_GUIDE_URL = "https://hrclub.careerfactory.ru/post/values/"
+POSTING_GUIDE_URL = "https://hrclub.careerfactory.ru/post/10447/"
+CHATS_GUIDE_URL = "https://hrclub.careerfactory.ru/post/9542/"
+PEOPLE_GUIDE_URL = "https://hrclub.careerfactory.ru/post/2584/"
+PARLIAMENT_GUIDE_URL = "https://hrclub.careerfactory.ru/post/12870/"
 
 WEBPACK_LOADER = {
     "DEFAULT": {
