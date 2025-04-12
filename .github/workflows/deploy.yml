@@ -35,8 +35,8 @@ jobs:
         env:
           secret_SECRET_KEY: ${{ secrets.HRCLUB_SECRET_KEY }}
           secret_APP_HOST: ${{ secrets.HRCLUB_APP_HOST }}
-          secret_MEDIA_UPLOAD_URL: ${{ secrets.MEDIA_UPLOAD_URL }}
-          secret_MEDIA_UPLOAD_CODE: ${{ secrets.MEDIA_UPLOAD_CODE }}
+          secret_MEDIA_UPLOAD_URL: ${{ secrets.HRCLUB_MEDIA_UPLOAD_URL }}
+          secret_MEDIA_UPLOAD_CODE: ${{ secrets.HRCLUB_MEDIA_UPLOAD_CODE }}
           secret_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           secret_EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
           secret_EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
