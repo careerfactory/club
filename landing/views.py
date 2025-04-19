@@ -23,7 +23,7 @@ EXISTING_DOCS = [
 
 
 def landing(request):
-    return redirect("https://careerfactory.ru/club")
+    return redirect("https://careerfactory.ru/hrclub")
 
     stats = cache.get("landing_stats")
     if not stats:
