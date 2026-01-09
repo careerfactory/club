@@ -5,6 +5,10 @@ on:
     branches:
       - club
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build:
     name: Build image
@@ -13,11 +17,16 @@ jobs:
       - uses: actions/checkout@master
         with:
           ref: club
-      - run: docker login ghcr.io -u $GITHUB_ACTOR -p ${{ secrets.TOKEN }}
-      - run: docker pull ghcr.io/careerfactory/club:latest || true
-      - run: docker build --cache-from=ghcr.io/careerfactory/club -t ghcr.io/careerfactory/club:latest -t ghcr.io/careerfactory/club:$GITHUB_SHA .
-      - run: docker image push ghcr.io/careerfactory/club:$GITHUB_SHA
-      - run: docker image push ghcr.io/careerfactory/club:latest
+      - name: Set image vars
+        run: |
+          echo "IMAGE=ghcr.io/careerfactory/club" >> $GITHUB_ENV
+          echo "GH_OWNER=careerfactory" >> $GITHUB_ENV
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GH_OWNER --password-stdin
+      - run: docker pull $IMAGE:latest || true
+      - run: docker build --cache-from=$IMAGE -t $IMAGE:latest -t $IMAGE:$GITHUB_SHA .
+      - run: docker image push $IMAGE:$GITHUB_SHA
+      - run: docker image push $IMAGE:latest
 
   deploy:
     name: Deploy
@@ -72,7 +81,7 @@ jobs:
       - run: |
           ssh -i ${{ env.SSH_KEY_PATH }} ${{ secrets.PRODUCTION_SSH_USERNAME }}@${{ secrets.PRODUCTION_SSH_HOST }} \
             "cd /var/www/club \
-            && docker login ghcr.io -u $GITHUB_ACTOR -p ${{ secrets.TOKEN }} \
-            && docker pull ghcr.io/careerfactory/club:$GITHUB_SHA \
+            && echo \"${{ secrets.GITHUB_TOKEN }}\" | docker login ghcr.io -u $GH_OWNER --password-stdin \
+            && docker pull $IMAGE:$GITHUB_SHA \
             && docker compose -f docker-compose.production.yml --env-file=.env up -d \
             && docker system prune --all --force"
