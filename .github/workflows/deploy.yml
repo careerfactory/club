@@ -20,9 +20,9 @@ jobs:
       - name: Set image vars
         run: |
           echo "IMAGE=ghcr.io/careerfactory/club" >> $GITHUB_ENV
-          echo "GH_OWNER=careerfactory" >> $GITHUB_ENV
-      - name: Login to GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GH_OWNER --password-stdin
+          echo "GHCR_USER=careerfactory" >> $GITHUB_ENV
+      - name: Login to GHCR (PAT with write:packages)
+        run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u $GHCR_USER --password-stdin
       - run: docker pull $IMAGE:latest || true
       - run: docker build --cache-from=$IMAGE -t $IMAGE:latest -t $IMAGE:$GITHUB_SHA .
       - run: docker image push $IMAGE:$GITHUB_SHA
@@ -81,7 +81,7 @@ jobs:
       - run: |
           ssh -i ${{ env.SSH_KEY_PATH }} ${{ secrets.PRODUCTION_SSH_USERNAME }}@${{ secrets.PRODUCTION_SSH_HOST }} \
             "cd /var/www/club \
-            && echo \"${{ secrets.GITHUB_TOKEN }}\" | docker login ghcr.io -u $GH_OWNER --password-stdin \
+            && echo \"${{ secrets.GHCR_PAT }}\" | docker login ghcr.io -u $GHCR_USER --password-stdin \
             && docker pull $IMAGE:$GITHUB_SHA \
             && docker compose -f docker-compose.production.yml --env-file=.env up -d \
             && docker system prune --all --force"
