@@ -16,6 +16,7 @@ from users.models.user import User
 
 log = logging.getLogger()
 
+BILLING_FROZEN = True  # выключаем любые новые платежи/подписки
 
 def done(request):
     payment = Payment.get(reference=request.GET.get("reference"))
@@ -25,6 +26,12 @@ def done(request):
 
 
 def pay(request):
+    if BILLING_FROZEN:
+        return render(request, "error.html", {
+            "title": "Оплата временно недоступна",
+            "message": "Списание подписки приостановлено, доступ сохраняется",
+        })
+
     product_code = request.GET.get("product_code")
     is_invite = request.GET.get("is_invite")
     is_recurrent = request.GET.get("is_recurrent")
