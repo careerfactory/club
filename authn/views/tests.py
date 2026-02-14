@@ -51,6 +51,7 @@ class ViewsAuthTests(TestCase):
         response = self.client.get(reverse("login"))
         # check auth/join.html is rendered
         self.assertContains(response=response, text="Вход по почте или нику", status_code=200)
+        self.assertContains(response=response, text="csrfmiddlewaretoken")
 
     def test_login_authorised(self):
         self.client.authorise()
