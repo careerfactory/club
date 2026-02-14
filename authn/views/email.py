@@ -46,6 +46,26 @@ def email_login(request):
 
     email_or_login = email_or_login.strip()
 
+    # Legacy "secret auth code" format: "<email>|-<secret_hash>".
+    # Keep backward compatibility for users who still rely on this flow.
+    if "|-" in email_or_login:
+        email, secret_hash = email_or_login.rsplit("|-", 1)
+        email = email.lower().strip()
+        secret_hash = secret_hash.strip()
+
+        user = User.objects.filter(email=email, secret_hash=secret_hash).first()
+        if not user:
+            return render(request, "error.html", {
+                "title": "Такого юзера нет 🤔",
+                "message": "Пользователь с такой почтой не найден в списке членов Клуба. "
+                           "Попробуйте другую почту или никнейм. "
+                           "Если совсем ничего не выйдет, напишите нам, попробуем помочь.",
+            }, status=404)
+
+        session = Session.create_for_user(user)
+        response = redirect(reverse("profile", args=[user.slug]))
+        return set_session_cookie(response, user, session)
+
     if features.FREE_MEMBERSHIP:
         # email login or sign up
         now = datetime.utcnow()

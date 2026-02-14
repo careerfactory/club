@@ -120,6 +120,9 @@ class TestPayView(TestCase):
 
     def setUp(self):
         self.client = HelperClient(user=self.existed_user)
+        self.billing_frozen_patch = patch("payments.views.stripe.BILLING_FROZEN", False)
+        self.billing_frozen_patch.start()
+        self.addCleanup(self.billing_frozen_patch.stop)
 
     def test_positive_new_user(self, mocked_stripe):
         # given

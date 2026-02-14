@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import django
 from django.test import TestCase, Client
 from django.urls import reverse
+from django.middleware.csrf import _get_new_csrf_string
 
 from authn.models.openid import OAuth2App
 from authn.models.session import Session
@@ -67,11 +68,12 @@ class ApiCsrfForCookieAuthTests(TestCase):
         self.assertIn("CSRF validation failed", response.content.decode(response.charset))
 
     def test_cookie_auth_post_with_csrf_allowed(self):
-        self.client.cookies["csrftoken"] = "known-token"
+        csrf_token = _get_new_csrf_string()
+        self.client.cookies["csrftoken"] = csrf_token
 
         response = self.client.post(
             reverse("toggle_tag", args=[self.tag.code]),
-            HTTP_X_CSRFTOKEN="known-token",
+            HTTP_X_CSRFTOKEN=csrf_token,
         )
 
         self.assertEqual(response.status_code, 200)
