@@ -25,4 +25,4 @@ RUN chmod 600 /etc/crontab
 RUN cd frontend && npm install && npm run build && cd ..
 
 RUN pip3 install pipenv==2021.5.29 virtualenv==20.24.7
-RUN sh -c 'if [ "$MODE" = "production" ]; then pipenv sync --system --deploy; else pipenv sync --system --dev --deploy; fi'
+RUN sh -c 'if [ "$MODE" = "production" ]; then pipenv sync --system; else pipenv sync --system --dev; fi'
