@@ -253,6 +253,34 @@ class ViewEmailLoginCodeTests(TestCase):
         self.assertFalse(self.client.is_authorised())
         self.assertFalse(User.objects.get(id=self.new_user.id).is_email_verified)
 
+    def test_external_goto_is_blocked(self):
+        response = self.client.get(
+            reverse("email_login_code"),
+            data={
+                "email": self.new_user.email,
+                "code": self.code.code,
+                "goto": "https://evil.example.com/pwned",
+            },
+        )
+
+        self.assertRedirects(
+            response=response,
+            expected_url=f"/user/{self.new_user.slug}/",
+            fetch_redirect_response=False,
+        )
+
+    def test_relative_goto_is_allowed(self):
+        response = self.client.get(
+            reverse("email_login_code"),
+            data={
+                "email": self.new_user.email,
+                "code": self.code.code,
+                "goto": "/people/",
+            },
+        )
+
+        self.assertRedirects(response=response, expected_url="/people/", fetch_redirect_response=False)
+
 @unittest.skipIf(not features.PATREON_AUTH_ENABLED, reason="Patreon auth was disabled")
 class ViewPatreonLoginTests(TestCase):
     @classmethod

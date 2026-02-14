@@ -11,11 +11,35 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = os.getenv("SECRET_KEY") or "wow so secret"
-DEBUG = (os.getenv("DEBUG") != "false")  # SECURITY WARNING: don't run with debug turned on in production!
-TESTS_RUN = True if os.getenv("TESTS_RUN") else False
+def env_bool(name: str, default: bool = False) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
 
-ALLOWED_HOSTS = ["*", "127.0.0.1", "localhost", "0.0.0.0", "club.careerfactory.ru"]
+
+def env_list(name: str, default=None):
+    value = os.getenv(name)
+    if value:
+        return [item.strip() for item in value.split(",") if item.strip()]
+    return list(default or [])
+
+
+DEBUG = env_bool("DEBUG", False)
+TESTS_RUN = env_bool("TESTS_RUN", False)
+DEBUG_AUTH_ENDPOINTS_ENABLED = env_bool("DEBUG_AUTH_ENDPOINTS_ENABLED", DEBUG) or TESTS_RUN
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    if DEBUG or TESTS_RUN:
+        SECRET_KEY = "dev-insecure-secret-key"
+    else:
+        raise RuntimeError("SECRET_KEY must be set when DEBUG is disabled")
+
+ALLOWED_HOSTS = env_list(
+    "ALLOWED_HOSTS",
+    default=["127.0.0.1", "localhost", "0.0.0.0", "club.careerfactory.ru", "testserver"],
+)
 INTERNAL_IPS = ["127.0.0.1"]
 
 ADMINS = [
@@ -55,6 +79,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -246,6 +271,23 @@ OPENID_JWT_EXPIRE_SECONDS = 24 * 60 * 60  # 24 hours
 OPENID_CODE_EXPIRE_SECONDS = 300  # 5 minutes
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_COOKIES = env_bool("SECURE_COOKIES", not DEBUG)
+SESSION_COOKIE_SECURE = SECURE_COOKIES
+CSRF_COOKIE_SECURE = SECURE_COOKIES
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = os.getenv("SESSION_COOKIE_SAMESITE", "Lax")
+CSRF_COOKIE_SAMESITE = os.getenv("CSRF_COOKIE_SAMESITE", "Lax")
+CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", default=[])
+X_FRAME_OPTIONS = os.getenv("X_FRAME_OPTIONS", "SAMEORIGIN")
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+if env_bool("SECURE_SSL_REDIRECT", False):
+    SECURE_SSL_REDIRECT = True
+
+if env_bool("SECURE_HSTS_ENABLED", False):
+    SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000"))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", True)
+    SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", False)
 
 MEDIA_UPLOAD_URL = "https://i.club.careerfactory.ru/upload/multipart/"
 MEDIA_UPLOAD_CODE = os.getenv("MEDIA_UPLOAD_CODE")

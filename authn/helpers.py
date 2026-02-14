@@ -23,7 +23,8 @@ def authorized_user(request):
 
 
 def authorized_user_with_session(request) -> Tuple[Optional[User], Optional[Session]]:
-    auth_token = request.COOKIES.get("token") or request.GET.get("token")
+    # Token auth is cookie-only for browser requests to avoid token leakage via URL/query logs.
+    auth_token = request.COOKIES.get("token")
     if auth_token:
         return user_by_token(auth_token)
 
@@ -90,6 +91,7 @@ def set_session_cookie(response, user, session):
         value=session.token,
         expires=max(user.membership_expires_at, datetime.utcnow() + timedelta(days=30)),
         httponly=True,
-        secure=not settings.DEBUG,
+        secure=settings.SESSION_COOKIE_SECURE,
+        samesite=settings.SESSION_COOKIE_SAMESITE,
     )
     return response

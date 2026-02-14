@@ -3,12 +3,15 @@ from datetime import datetime, timedelta
 import django
 from django.conf import settings
 from django.test import TestCase
+from django.test.client import RequestFactory
 
-django.setup()  # todo: how to run tests from PyCharm without this workaround?
-
-from authn.models.session import Code
+from authn.helpers import authorized_user_with_session
+from authn.models.session import Code, Session
 from club.exceptions import RateLimitException, InvalidCode
 from users.models.user import User
+
+
+django.setup()  # todo: how to run tests from PyCharm without this workaround?
 
 
 class ModelCodeTests(TestCase):
@@ -123,3 +126,34 @@ class ModelCodeTests(TestCase):
 
         with self.assertRaises(InvalidCode):
             Code.check_code(recipient=recipient, code=code.code)
+
+
+class AuthTokenTransportTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user: User = User.objects.create(
+            email="token-tests@xx.com",
+            membership_started_at=datetime.now() - timedelta(days=5),
+            membership_expires_at=datetime.now() + timedelta(days=5),
+            slug="token_transport_user",
+        )
+        cls.session = Session.create_for_user(cls.user)
+
+    def test_query_token_is_ignored(self):
+        request = RequestFactory().get("/", data={"token": self.session.token})
+        request.COOKIES = {}
+
+        user, session = authorized_user_with_session(request)
+
+        self.assertIsNone(user)
+        self.assertIsNone(session)
+
+    def test_cookie_token_is_accepted(self):
+        request = RequestFactory().get("/")
+        request.COOKIES = {"token": self.session.token}
+
+        user, session = authorized_user_with_session(request)
+
+        self.assertIsNotNone(user)
+        self.assertIsNotNone(session)
+        self.assertEqual(user.id, self.user.id)

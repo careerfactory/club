@@ -413,3 +413,14 @@ class TestStripeWebhookView(TestCase):
                                         **header)
 
             self.assertEqual(response.status_code, 400)
+
+
+class TestCloudPaymentsWebhookSecurity(TestCase):
+    def setUp(self):
+        self.client = HelperClient()
+
+    @patch("payments.views.cloudpayments.CloudPaymentsService.verify_webhook", return_value=True)
+    def test_missing_action_returns_400(self, _mocked_verify):
+        response = self.client.post(reverse("cloudpayments_webhook"), data={"Status": "Completed"})
+
+        self.assertEqual(response.status_code, 400)

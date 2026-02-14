@@ -4,6 +4,8 @@ from typing import Optional
 from authlib.oauth2 import OAuth2Error
 from authlib.oauth2.rfc6749 import MissingAuthorizationError
 from django.http import JsonResponse, HttpResponse
+from django.middleware.csrf import CsrfViewMiddleware
+from django.views.decorators.csrf import csrf_exempt
 
 from authn.models.openid import OAuth2App
 from authn.providers.openid import oauth2_token_validator
@@ -13,14 +15,17 @@ from users.models.user import User
 
 def api(require_auth=True, scopes=None):
     def decorator(view):
+        @csrf_exempt
         @functools.wraps(view)
         def wrapper(request, *args, **kwargs):
             # check auth if needed
+            authenticated_with_api_token = False
             if require_auth:
                 # requests on behalf of apps (user == owner, for a simplicity)
-                service_token = request.headers.get("X-Service-Token") or request.GET.get("service_token")
+                service_token = request.headers.get("X-Service-Token")
                 if service_token:
                     request.me = user_by_service_token(service_token)
+                    authenticated_with_api_token = True
 
                 # oauth requests for API
                 oauth_access_token = request.headers.get("Authorization")
@@ -33,10 +38,15 @@ def api(require_auth=True, scopes=None):
                         raise ApiAuthRequired(title="OAuth token error", message=str(ex))
 
                     request.me = token.user
+                    authenticated_with_api_token = True
 
                 # this user can also come from other types of auth (e.g. cookies)
                 if not request.me:
                     raise ApiAuthRequired()
+
+                # CSRF protection for cookie-based browser auth.
+                if is_unsafe_method(request) and not authenticated_with_api_token:
+                    enforce_csrf(request)
 
             # execute view and catch exceptions
             status_code = 200
@@ -74,6 +84,16 @@ def api(require_auth=True, scopes=None):
 
 def is_ajax(request):
     return bool(request.GET.get("is_ajax"))
+
+
+def is_unsafe_method(request) -> bool:
+    return request.method not in {"GET", "HEAD", "OPTIONS", "TRACE"}
+
+
+def enforce_csrf(request):
+    rejection = CsrfViewMiddleware(lambda _request: HttpResponse()).process_view(request, None, (), {})
+    if rejection is not None:
+        raise ApiAuthRequired(title="CSRF validation failed", message="Missing or invalid CSRF token")
 
 
 def user_by_service_token(service_token) -> Optional[User]:

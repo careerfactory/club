@@ -6,6 +6,7 @@ from django.db import IntegrityError
 from django.db.models import Q
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django_q.tasks import async_task
 
 from authn.helpers import set_session_cookie
@@ -16,6 +17,22 @@ from notifications.telegram.users import notify_user_auth
 from users.models.user import User
 
 log = logging.getLogger(__name__)
+
+
+def safe_redirect_target(request, target):
+    if not target:
+        return None
+
+    allowed_hosts = {request.get_host(), *settings.ALLOWED_HOSTS}
+    if url_has_allowed_host_and_scheme(
+        url=target,
+        allowed_hosts=allowed_hosts,
+        require_https=not settings.DEBUG,
+    ):
+        return target
+
+    log.warning("Blocked unsafe redirect target: %s", target)
+    return None
 
 
 def email_login(request):
@@ -99,6 +116,6 @@ def email_login_code(request):
         user.deleted_at = None
         user.save()
 
-    redirect_to = reverse("profile", args=[user.slug]) if not goto else goto
+    redirect_to = safe_redirect_target(request, goto) or reverse("profile", args=[user.slug])
     response = redirect(redirect_to)
     return set_session_cookie(response, user, session)

@@ -164,14 +164,16 @@ class CloudPaymentsService:
 
     @classmethod
     def verify_webhook(cls, request) -> bool:
-        log.info("Verify request")
+        secret = settings.CLOUDPAYMENTS_API_PASSWORD
+        provided_signature = request.META.get("HTTP_CONTENT_HMAC")
+        if not secret or not provided_signature:
+            return False
 
-        secret = bytes(settings.CLOUDPAYMENTS_API_PASSWORD, 'utf-8')
+        expected_signature = base64.b64encode(
+            hmac.new(secret.encode("utf-8"), request.body, digestmod=hashlib.sha256).digest()
+        ).decode("utf-8")
 
-        signature = base64.b64encode(hmac.new(secret, request.body, digestmod=hashlib.sha256).digest())
-        log.info('Signature %s against %s', signature, request.META.get('HTTP_CONTENT_HMAC'))
-
-        return signature == bytes(request.META.get('HTTP_CONTENT_HMAC'), 'utf-8')
+        return hmac.compare_digest(expected_signature, provided_signature)
 
     @classmethod
     def accept_payment(cls, action: str, payload: dict) -> [TransactionStatus, dict]:

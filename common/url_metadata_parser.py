@@ -1,4 +1,6 @@
+import ipaddress
 import logging
+import socket
 from collections import namedtuple
 from typing import Optional
 from urllib.parse import urljoin, urlparse
@@ -7,7 +9,6 @@ import requests
 from django.utils.html import strip_tags
 from newspaper import ArticleException, Config, Article
 from requests import RequestException
-from urllib3.exceptions import InsecureRequestWarning
 
 DEFAULT_REQUEST_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) "
@@ -17,7 +18,6 @@ DEFAULT_REQUEST_HEADERS = {
 DEFAULT_REQUEST_TIMEOUT = 10
 MAX_PARSABLE_CONTENT_LENGTH = 15 * 1024 * 1024  # 15Mb
 
-requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 log = logging.getLogger(__name__)
 
 
@@ -55,15 +55,27 @@ def resolve_url(entry_link):
     depth = 10
     while depth > 0:
         depth -= 1
+        if not is_safe_external_url(url):
+            log.warning(f"Blocked unsafe URL: {url}")
+            return None, content_type, content_length
 
         try:
-            response = requests.head(url, timeout=DEFAULT_REQUEST_TIMEOUT, verify=False, stream=True)
+            response = requests.head(
+                url,
+                timeout=DEFAULT_REQUEST_TIMEOUT,
+                stream=True,
+                headers=DEFAULT_REQUEST_HEADERS,
+                allow_redirects=False,
+            )
         except RequestException:
             log.warning(f"Failed to resolve URL: {url}")
             return None, content_type, content_length
 
         if 300 < response.status_code < 400:
-            url = response.headers["location"]  # follow redirect
+            location = response.headers.get("location")
+            if not location:
+                return None, content_type, content_length
+            url = urljoin(url, location)  # follow redirect safely
         else:
             content_type = response.headers.get("content-type")
             content_length = int(response.headers.get("content-length") or 0)
@@ -73,12 +85,17 @@ def resolve_url(entry_link):
 
 
 def load_page_safe(url: str) -> str:
+    if not is_safe_external_url(url):
+        log.warning(f"Blocked unsafe URL fetch: {url}")
+        return ""
+
     try:
         response = requests.get(
             url=url,
             timeout=DEFAULT_REQUEST_TIMEOUT,
             headers=DEFAULT_REQUEST_HEADERS,
-            stream=True  # the most important part — stream response to prevent loading everything into memory
+            stream=True,  # the most important part — stream response to prevent loading everything into memory
+            allow_redirects=False,
         )
     except RequestException as ex:
         log.warning(f"Error parsing the page: {url} {ex}")
@@ -96,3 +113,35 @@ def load_and_parse_full_article_text_and_image(url: str) -> Article:
     article.parse()
 
     return article
+
+
+def is_safe_external_url(url: str) -> bool:
+    parsed = urlparse(url)
+    if parsed.scheme not in {"http", "https"}:
+        return False
+    if not parsed.hostname:
+        return False
+    if parsed.hostname.lower() == "localhost":
+        return False
+    return is_public_hostname(parsed.hostname)
+
+
+def is_public_hostname(hostname: str) -> bool:
+    try:
+        addr_info = socket.getaddrinfo(hostname, None)
+    except socket.gaierror:
+        return False
+
+    for _, _, _, _, sockaddr in addr_info:
+        ip_address = ipaddress.ip_address(sockaddr[0])
+        if (
+            ip_address.is_private
+            or ip_address.is_loopback
+            or ip_address.is_link_local
+            or ip_address.is_reserved
+            or ip_address.is_multicast
+            or ip_address.is_unspecified
+        ):
+            return False
+
+    return True

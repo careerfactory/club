@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404, render
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from authn.decorators.auth import require_auth
 from authn.helpers import check_user_permissions
@@ -31,7 +32,11 @@ def profile(request, user_slug):
     if request.me and user.id == request.me.id:
         # handle auth redirect
         goto = request.GET.get("goto")
-        if goto and goto.startswith(settings.APP_HOST):
+        if goto and url_has_allowed_host_and_scheme(
+            goto,
+            allowed_hosts={request.get_host(), *settings.ALLOWED_HOSTS},
+            require_https=not settings.DEBUG,
+        ):
             return redirect(goto)
 
         # moderation status check for new-joiners
@@ -226,5 +231,4 @@ def delete_expertise(request, expertise):
         }
 
     return {"status": "ok"}
-
 

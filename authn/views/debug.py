@@ -12,9 +12,13 @@ from users.models.user import User
 from utils.strings import random_string
 
 
+def ensure_debug_auth_allowed():
+    if not settings.DEBUG_AUTH_ENDPOINTS_ENABLED:
+        raise AccessDenied(title="Эта фича отключена в текущем окружении")
+
+
 def debug_dev_login(request):
-    if not (settings.DEBUG or settings.TESTS_RUN):
-        raise AccessDenied(title="Эта фича доступна только при DEBUG=true")
+    ensure_debug_auth_allowed()
 
     user, is_created = User.objects.get_or_create(
         slug="dev",
@@ -45,8 +49,7 @@ def debug_dev_login(request):
 
 
 def debug_random_login(request):
-    if not (settings.DEBUG or settings.TESTS_RUN):
-        raise AccessDenied(title="Эта фича доступна только при DEBUG=true")
+    ensure_debug_auth_allowed()
 
     slug = "random_" + random_string()
     user, is_created = User.objects.get_or_create(
@@ -77,8 +80,7 @@ def debug_random_login(request):
 
 
 def debug_login(request, user_slug):
-    if not (settings.DEBUG or settings.TESTS_RUN):
-        raise AccessDenied(title="Эта фича доступна только при DEBUG=true")
+    ensure_debug_auth_allowed()
 
     user = get_object_or_404(User, slug=user_slug)
     session = Session.create_for_user(user)

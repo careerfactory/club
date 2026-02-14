@@ -1,0 +1,7 @@
+name: Club CodeQL Configuration
+
+paths-ignore:
+  - frontend/static/admin/**
+  - frontend/static/webfonts/**
+  - frontend/static/js/vendor/**
+  - '**/*.min.js'

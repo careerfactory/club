@@ -129,7 +129,9 @@ def cloudpayments_webhook(request):
         log.error("Request is not verified %r", request.POST)
         return HttpResponseBadRequest("Request is not verified")
 
-    action = request.GET["action"]
+    action = request.GET.get("action")
+    if not action:
+        return HttpResponseBadRequest("Action is required")
     payload = request.POST
 
     log.info("Webhook action %s, payload %s", action, payload)
