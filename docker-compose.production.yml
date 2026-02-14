@@ -8,6 +8,7 @@ services:
       - MODE=production
       - PYTHONUNBUFFERED=1
       - DEBUG=false
+      - SECRET_KEY=${SECRET_KEY:?Variable SECRET_KEY is missing!}
       - APP_HOST=https://club.careerfactory.ru
       - POSTGRES_USER=${POSTGRES_USER:?Variable POSTGRES_USER is missing!}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Variable POSTGRES_PASSWORD is missing!}
