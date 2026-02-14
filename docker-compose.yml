@@ -5,6 +5,8 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
+      args:
+        MODE: dev
     command: make docker-run-dev
     container_name: club_app
     environment:
@@ -32,6 +34,8 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
+      args:
+        MODE: dev
     command: make docker-run-queue
     environment:
       - MODE=dev

@@ -1,5 +1,6 @@
 FROM ubuntu:20.04
-ENV MODE=dev
+ARG MODE=production
+ENV MODE=${MODE}
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
