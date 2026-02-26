@@ -49,6 +49,17 @@ class TestPaymentModel(TestCase):
 
             self.assertContains(response=response, text='', status_code=200)
 
+    def test_show_post_contains_csrf_token_for_comment_forms(self):
+        post = self.creator.create_post(
+            is_visible=True,
+            is_public=True,
+        )
+        client = self._authorized_client(self.user)
+
+        response = client.get(self._post_url(post))
+
+        self.assertContains(response, 'name="csrfmiddlewaretoken"', status_code=200)
+
     def test_show_draft_post(self):
         '''
         Is regression test for #545.
