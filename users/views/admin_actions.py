@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -17,6 +18,9 @@ from users.forms.admin import UserAdminForm, UserInfoAdminForm
 from users.models.achievements import Achievement, UserAchievement
 from users.models.user import User
 from users.utils import is_role_manageable_by_user
+
+
+log = logging.getLogger(__name__)
 
 
 @require_auth
@@ -103,7 +107,10 @@ def do_user_admin_actions(request, user, data):
     if data["is_rejected"]:
         user.moderation_status = User.MODERATION_STATUS_REJECTED
         user.save()
-        send_unmoderated_email(user)
+        try:
+            send_unmoderated_email(user)
+        except Exception:
+            log.exception("Failed to send unmoderated email to user_id=%s", user.id)
         notify_admin_user_unmoderate(user)
 
     # Delete account
