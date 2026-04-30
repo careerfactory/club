@@ -181,6 +181,33 @@ class ViewEmailLoginTests(TestCase):
                              fetch_redirect_response=False)
         self.assertTrue(self.client.is_authorised())
 
+    def test_secret_hash_login_by_get(self):
+        response = self.client.get(reverse("email_login"),
+                                   data={"email_or_login": self.new_user.secret_auth_code})
+
+        self.assertRedirects(response=response, expected_url=f"/user/{self.new_user.slug}/",
+                             fetch_redirect_response=False)
+        self.assertTrue(self.client.is_authorised())
+        self.assertTrue(User.objects.get(id=self.new_user.id).is_email_verified)
+
+    def test_secret_hash_login_renews_expired_intro_membership(self):
+        expired_user = User.objects.create(
+            email="expired-intro@xx.com",
+            membership_started_at=datetime.now() - timedelta(days=60),
+            membership_expires_at=datetime.now() - timedelta(days=30),
+            moderation_status=User.MODERATION_STATUS_INTRO,
+            slug="expiredintro"
+        )
+
+        response = self.client.get(reverse("email_login"),
+                                   data={"email_or_login": expired_user.secret_auth_code})
+
+        self.assertRedirects(response=response, expected_url=f"/user/{expired_user.slug}/",
+                             fetch_redirect_response=False)
+        expired_user.refresh_from_db()
+        self.assertTrue(expired_user.is_active_membership)
+        self.assertTrue(expired_user.is_email_verified)
+
     def test_secret_hash_user_not_exist(self):
         response = self.client.post(reverse("email_login"),
                                     data={"email_or_login": "not-existed@user.com|-xxx", })
@@ -238,6 +265,25 @@ class ViewEmailLoginCodeTests(TestCase):
                              fetch_redirect_response=False)
         self.assertTrue(self.client.is_authorised())
         self.assertTrue(User.objects.get(id=self.new_user.id).is_email_verified)
+
+    def test_correct_code_renews_expired_intro_membership(self):
+        expired_user = User.objects.create(
+            email="expired-code@xx.com",
+            membership_started_at=datetime.now() - timedelta(days=60),
+            membership_expires_at=datetime.now() - timedelta(days=30),
+            moderation_status=User.MODERATION_STATUS_INTRO,
+            slug="expiredcode"
+        )
+        code = Code.create_for_user(user=expired_user, recipient=expired_user.email)
+
+        response = self.client.get(reverse("email_login_code"),
+                                   data={"email": expired_user.email, "code": code.code})
+
+        self.assertRedirects(response=response, expected_url=f"/user/{expired_user.slug}/",
+                             fetch_redirect_response=False)
+        expired_user.refresh_from_db()
+        self.assertTrue(expired_user.is_active_membership)
+        self.assertTrue(expired_user.is_email_verified)
 
     def test_empty_params(self):
         response = self.client.get(reverse("email_login_code"), data={})

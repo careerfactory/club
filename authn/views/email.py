@@ -19,6 +19,43 @@ from users.models.user import User
 log = logging.getLogger(__name__)
 
 
+def sign_in_user(response, user):
+    changed = False
+
+    if user.moderation_status == User.MODERATION_STATUS_INTRO and not user.is_active_membership:
+        user.membership_expires_at = datetime.utcnow() + timedelta(days=30)
+        changed = True
+
+    if not user.is_email_verified:
+        user.is_email_verified = True
+        changed = True
+
+    if user.deleted_at:
+        user.deleted_at = None
+        changed = True
+
+    if changed:
+        user.save()
+
+    session = Session.create_for_user(user)
+    return set_session_cookie(response, user, session)
+
+
+def get_legacy_secret_login(request):
+    email_or_login = request.POST.get("email_or_login") or request.GET.get("email_or_login")
+    if email_or_login:
+        email_or_login = email_or_login.strip()
+        if "|-" in email_or_login:
+            return email_or_login.rsplit("|-", 1)
+
+    email = request.GET.get("email")
+    secret_hash = request.GET.get("secret_hash") or request.GET.get("secret")
+    if email and secret_hash:
+        return email, secret_hash
+
+    return None, None
+
+
 def safe_redirect_target(request, target):
     if not target:
         return None
@@ -36,22 +73,10 @@ def safe_redirect_target(request, target):
 
 
 def email_login(request):
-    if request.method != "POST":
-        return redirect("login")
-
-    goto = request.POST.get("goto")
-    email_or_login = request.POST.get("email_or_login")
-    if not email_or_login:
-        return redirect("login")
-
-    email_or_login = email_or_login.strip()
-
-    # Legacy "secret auth code" format: "<email>|-<secret_hash>".
-    # Keep backward compatibility for users who still rely on this flow.
-    if "|-" in email_or_login:
-        email, secret_hash = email_or_login.rsplit("|-", 1)
-        email = email.lower().strip()
-        secret_hash = secret_hash.strip()
+    legacy_email, legacy_secret_hash = get_legacy_secret_login(request)
+    if legacy_email and legacy_secret_hash:
+        email = legacy_email.lower().strip()
+        secret_hash = legacy_secret_hash.strip()
 
         user = User.objects.filter(email=email, secret_hash=secret_hash).first()
         if not user:
@@ -62,9 +87,18 @@ def email_login(request):
                            "Если совсем ничего не выйдет, напишите нам, попробуем помочь.",
             }, status=404)
 
-        session = Session.create_for_user(user)
         response = redirect(reverse("profile", args=[user.slug]))
-        return set_session_cookie(response, user, session)
+        return sign_in_user(response, user)
+
+    if request.method != "POST":
+        return redirect("login")
+
+    goto = request.POST.get("goto")
+    email_or_login = request.POST.get("email_or_login")
+    if not email_or_login:
+        return redirect("login")
+
+    email_or_login = email_or_login.strip()
 
     if features.FREE_MEMBERSHIP:
         # email login or sign up
@@ -124,18 +158,7 @@ def email_login_code(request):
     code = code.lower().strip()
 
     user = Code.check_code(recipient=email, code=code)
-    session = Session.create_for_user(user)
-
-    if not user.is_email_verified:
-        # save 1 click and verify email
-        user.is_email_verified = True
-        user.save()
-
-    if user.deleted_at:
-        # cancel user deletion
-        user.deleted_at = None
-        user.save()
 
     redirect_to = safe_redirect_target(request, goto) or reverse("profile", args=[user.slug])
     response = redirect(redirect_to)
-    return set_session_cookie(response, user, session)
+    return sign_in_user(response, user)
